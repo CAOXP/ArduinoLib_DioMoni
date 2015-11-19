@@ -45,15 +45,13 @@ class DioMoni
 	  void setinterval(unsigned long interval_millis);
 	  uint8_t check();
 	  void reset();
-		
+	
 	private:
 	  unsigned char  pin;
 	  unsigned long  previous_millis, interval_millis;
 
 	uint8_t getKey();
-	uint8_t keyBurstFirst;		//the first interval to BURST KEY	uint:keyScanTimeInterval
-	uint8_t keyBurstSpace;		//the next intervals				uint:keyScanTimeInterval
-	uint8_t KeyHoldDly;        //按键连发时间
+
 } ;
 
 #endif

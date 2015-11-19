@@ -61,14 +61,18 @@ void DioMoni::reset()
 #define 	IO_STAT_IDLE		LOW
 #define 	IO_STAT_PRESSED		HIGH
 
+	uint8_t keyBurstFirst;		//the first interval to BURST KEY	uint:keyScanTimeInterval
+	uint8_t keyBurstSpace;		//the next intervals				uint:keyScanTimeInterval
+	uint8_t KeyHoldDly;        //æŒ‰é”®è¿å‘æ—¶é—´
+
 uint8_t DioMoni::getKey()
 {
-	static uint8_t KeyState   = 0;        //°´¼ü×´Ì¬,×´Ì¬»úÊ¹ÓÃ.
-	static boolean bKeyBurst  = false;    //±êÖ¾Á¬·¢¿ªÊ¼
+	static uint8_t KeyState   = 0;        //æŒ‰é”®çŠ¶æ€,çŠ¶æ€æœºä½¿ç”¨.
+	static boolean bKeyBurst  = false;    //æ ‡å¿—è¿å‘å¼€å§‹
 
-	static uint8_t KeyPrev    = 0;        		//±£´æÉÏÒ»´Î°´¼ü,·ÀÖ¹³öÏÖÂÒÂëÏÖÏó.
-	uint8_t KeyPress  = IO_STAT_IDLE;           //°´¼üÖµ
-	uint8_t KeyReturn = IO_STAT_IDLE;           //°´¼ü·µ»ØÖµ
+	static uint8_t KeyPrev    = 0;        		//ä¿å­˜ä¸Šä¸€æ¬¡æŒ‰é”®,é˜²æ­¢å‡ºç°ä¹±ç ç°è±¡.
+	uint8_t KeyPress  = IO_STAT_IDLE;           //æŒ‰é”®å€¼
+	uint8_t KeyReturn = IO_STAT_IDLE;           //æŒ‰é”®è¿”å›å€¼
 
 	KeyPress = digitalRead( pin );
 
@@ -76,7 +80,7 @@ uint8_t DioMoni::getKey()
 	
 	switch(KeyState)
 	{
-		//°´¼ü³õÊ¼Ì¬00
+		//æŒ‰é”®åˆå§‹æ€00
 		case 0:
 			if( KeyPress !=IO_STAT_IDLE )
 			{
@@ -84,20 +88,20 @@ uint8_t DioMoni::getKey()
 				KeyPrev  = KeyPress;
 			}
 			break;
-		//°´¼üÈ·ÈÏÌ¬01
+		//æŒ‰é”®ç¡®è®¤æ€01
 		case 1:
 			if( KeyPress !=IO_STAT_IDLE  )
 			{
-				//ÒÔÏÂÎª°´¼ü°´ÏÂ´¦Àí
+				//ä»¥ä¸‹ä¸ºæŒ‰é”®æŒ‰ä¸‹å¤„ç†
 				KeyState  = 2;
-				KeyReturn = IO_STAT_HIGH2LOW ;         					//°´¼ü°´ÏÂ
+				KeyReturn = IO_STAT_HIGH2LOW ;         					//æŒ‰é”®æŒ‰ä¸‹
 			}
 			else
-			{//°´¼üÌ§Æğ,ÊÇ¶¶¶¯,²»ÏìÓ¦°´¼ü
+			{//æŒ‰é”®æŠ¬èµ·,æ˜¯æŠ–åŠ¨,ä¸å“åº”æŒ‰é”®
 				KeyState = 0;
 			}
 			break;
-		//°´¼üÁ¬ĞøÌ¬11
+		//æŒ‰é”®è¿ç»­æ€11
 		case 2:
 			if( KeyPress !=IO_STAT_IDLE )
 			{
@@ -105,25 +109,25 @@ uint8_t DioMoni::getKey()
 				if( (bKeyBurst ==true) && (KeyHoldDly>keyBurstSpace) )
 				{
 					KeyHoldDly = 0;
-					KeyReturn  = IO_STAT_HIGH2LOW_HOLD_BURST;      		//Á¬·¢
+					KeyReturn  = IO_STAT_HIGH2LOW_HOLD_BURST;      		//è¿å‘
 					break;
 				}
 				if(KeyHoldDly>keyBurstFirst)
 				{
 					bKeyBurst  = true;
 					KeyHoldDly = 0;
-					KeyReturn  = IO_STAT_HIGH2LOW_HOLD;       			//³¤°´ºóµÄÖµ
+					KeyReturn  = IO_STAT_HIGH2LOW_HOLD;       			//é•¿æŒ‰åçš„å€¼
 					break;
 				}
 			}
-		//°´¼üÊÍ·ÅÌ¬10
+		//æŒ‰é”®é‡Šæ”¾æ€10
 		case 3:
 			if(KeyPress == IO_STAT_IDLE )
 			{
 				KeyState   = 0;
 				KeyHoldDly = 0;
 				bKeyBurst  = false;
-				KeyReturn  = IO_STAT_LOW2HIGH;              		//Ì§ÆğÖµ
+				KeyReturn  = IO_STAT_LOW2HIGH;              		//æŠ¬èµ·å€¼
 			}
 			break;
 		default :break;
